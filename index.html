@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mecanografía Fácil</title>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fira+Sans:wght@400;700&display=swap" />
+  <style>
+    :root {
+      --color-bg: #000;
+      --color-text: #eee;
+      --color-accent: #66d9ef;
+      --color-button: #00c3ff;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Fira Sans', sans-serif;
+      background: var(--color-bg);
+      color: var(--color-text);
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+    }
+
+    header {
+      display: flex;
+      align-items: center;
+      padding: 1.5rem 2rem;
+      background-color: #111;
+      border-bottom: 1px solid #333;
+    }
+
+    header img {
+      height: 60px;
+      margin-right: 1rem;
+    }
+
+    header h1 {
+      font-size: 1.8rem;
+      font-weight: 700;
+      color: var(--color-accent);
+    }
+
+    main {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 2.5rem;
+      text-align: center;
+    }
+
+    main h2 {
+      font-size: 1.6rem;
+      margin-bottom: 1.5rem;
+      color: var(--color-accent);
+    }
+
+    main p {
+      max-width: 800px;
+      margin-bottom: 1.2rem;
+      font-size: 1.1rem;
+      line-height: 1.6;
+    }
+
+    strong {
+      color: #fff;
+    }
+
+    em {
+      color: #ccc;
+      font-style: italic;
+    }
+
+    .button {
+      margin-top: 1rem;
+      padding: 0.75rem 2rem;
+      background: var(--color-button);
+      color: #000;
+      font-size: 1.1rem;
+      font-weight: bold;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .button:hover {
+      background: #00eaff;
+      transform: scale(1.05);
+    }
+
+    footer {
+      text-align: center;
+      padding: 1rem;
+      font-size: 0.9rem;
+      background: #111;
+      color: #777;
+      border-top: 1px solid #333;
+    }
+
+    footer a {
+      color: #aaa;
+      text-decoration: none;
+    }
+
+    footer a:hover {
+      color: #fff;
+    }
+  </style>
+</head>
+<!-- Google Tag Manager -->
+<script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+})(window,document,'script','dataLayer','GTM-WZVBQDDL');</script>
+<!-- End Google Tag Manager -->
+
+<div id="cookie-banner" style="
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: #111;
+  color: #fff;
+  padding: 1rem;
+  text-align: center;
+  z-index: 9999;
+  font-size: 0.9rem;
+">
+  Este sitio usa cookies para mejorar la experiencia. Al continuar navegando, aceptás su uso.
+  <button onclick="document.getElementById('cookie-banner').style.display='none'" style="
+    margin-left: 1rem;
+    background: #00c3ff;
+    color: #000;
+    border: none;
+    padding: 0.5rem 1rem;
+    border-radius: 5px;
+    cursor: pointer;
+  ">Aceptar</button>
+</div>
+
+<body>
+
+  <header>
+    <img src="imagenes/logo.png" alt="Logo de Mecanografía Fácil" />
+    <h1>Mecanografía Fácil</h1>
+  </header>
+
+  <main>
+    <h2>🧠 Nuestra filosofía: tecnología con propósito</h2>
+
+    <p>En UmbralDigital creemos que la tecnología no debe ser una barrera, sino un puente.</p>
+
+    <p><strong>Mecanografía Fácil</strong> nace con una misión clara:
+      acercar a las personas al uso del computador de forma natural, didáctica y significativa.</p>
+
+    <p>Aprender a teclear no es solo una habilidad práctica; es una puerta de entrada al mundo digital.
+      Es el primer paso hacia una comunicación más fluida, una expresión más eficiente y una relación más consciente con la tecnología.</p>
+
+    <p>Queremos formar <strong>personas autónomas, profesionales más ágiles</strong> y ciudadanos digitales capaces de desenvolverse con confianza en un entorno cada vez más conectado.</p>
+
+    <p><em>Cuando dominas el teclado, abres una nueva forma de pensar, escribir y crear.</em></p>
+
+    <div style="margin-top: 2rem;">
+      <button class="button" onclick="location.href='juego.html'">🎮 Ir al juego</button>
+      <button class="button" onclick="location.href='instrucciones.html'" style="margin-left: 1rem;">ℹ️ Ver instrucciones</button>
+    </div>
+
+  </main>
+
+  <footer>
+    © 2025 <a href="https://umbraldigital.cl" target="_blank">UmbralDigital.cl</a> · Todos los derechos reservados
+  </footer>
+
+</body>
+<!-- Google Tag Manager (noscript) -->
+<noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-WZVBQDDL"
+height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+<!-- End Google Tag Manager (noscript) -->
+</html>

@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <title>Mecanografía Fácil</title>
+  <script src="./libs/phaser.min.js"></script>
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      background: #000;
+      color: #fff;
+      font-family: monospace;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+    }
+
+    #site-header {
+      height: 60px;
+      background: #000;
+      display: flex;
+      align-items: center;
+      padding: 0 2rem;
+      border-bottom: 1px solid #333;
+    }
+
+    #site-header .logo {
+      height: 50px;
+      margin-right: 1rem;
+    }
+
+    #site-header .brand-name {
+      font-size: 28px;
+      font-weight: bold;
+    }
+
+    #juegoContainer {
+      flex-grow: 1;
+      width: 100%;
+      overflow: hidden;
+    }
+
+    footer {
+      text-align: center;
+      padding: 0.75rem;
+      font-size: 0.8125em;
+      background: #111;
+      color: #777;
+      border-top: 1px solid #333;
+    }
+  </style>
+</head>
+<body>
+
+  <header id="site-header">
+    <img src="imagenes/logo.png" class="logo" alt="Logo" />
+    <!-- <span class="brand-name">Mecanografía Fácil</span> -->
+  </header>
+
+  <div id="juegoContainer"></div>
+
+  <footer>
+    © 2025 <a href="https://umbraldigital.cl" target="_blank">UmbralDigital.cl</a> · Todos los derechos reservados
+  </footer>
+
+  <script type="module">
+    import GameHeaderScene from './src/scenes/GameHeaderScene.js';
+    import WelcomeScene from './src/scenes/WelcomeScene.js';
+    import DemoScene from './src/scenes/DemoScene.js';
+    import InterlevelScene from './src/scenes/InterlevelScene.js';
+    import RetryScene from './src/scenes/RetryScene.js';
+    import TypingFallingScene from './src/scenes/TypingFallingScene.js';
+    import TypingTextScene from './src/scenes/TypingTextScene.js';
+
+    const config = {
+      type: Phaser.AUTO,
+      parent: 'juegoContainer',
+      width: window.innerWidth,
+      height: window.innerHeight - 120, // 80 (header) + 40 (footer)
+      scale: {
+        mode: Phaser.Scale.RESIZE,
+        autoCenter: Phaser.Scale.CENTER_BOTH
+      },
+
+      backgroundColor: '#000000',
+      scene: [
+        GameHeaderScene,    
+        WelcomeScene,
+        DemoScene,
+        InterlevelScene,
+        TypingFallingScene,
+        TypingTextScene,
+        RetryScene
+      ]
+    };
+
+    window.onload = function () {
+      const game = new Phaser.Game(config);
+      game.scene.start('WelcomeScene');  // 🔁 Esto fuerza el inicio en Welcome
+    };
+    
+  </script>
+
+</body>
+</html>
