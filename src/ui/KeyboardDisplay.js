@@ -11,7 +11,7 @@ export default class KeyboardDisplay {
         if (!scene || !scene.add) throw new Error("Se requiere una escena Phaser válida");
 
         this.scene = scene;
-        this.container = scene.add.container(x, y); // <-- x e y iniciales
+        this.container = scene.add.container(x, y);
         this.lastKeys = [];
         this.settings = {
             guides: true,
@@ -50,37 +50,35 @@ export default class KeyboardDisplay {
             throw error;
         }
 
-        // ------------------ Crear los objetos de control una vez ------------------
         this.createControlsUI();
-
-        // ------------------ IMPORTANTE: Posicionar los controles al inicio ------------------
-        // Llama a updateControlsPosition para que los botones se ubiquen correctamente
-        // después de que el contenedor se ha creado y el BasicKeyboard se ha dibujado
-        this.updateControlsPosition(); // <--- ¡CORRECCIÓN AQUÍ! Llamando al método correcto
+        this.updateControlsPosition();
     }
 
     // === Métodos Públicos ===
     draw(input, options = {}) {
         const processed = this.processInput(input, options);
-        
+        let allKeysForGuides = []; 
+        let groupsForBasicKeyboard = []; // <-- NUEVO: Para pasar a BasicKeyboard
+
         if (Array.isArray(processed)) {
+            // Caso de múltiples grupos (ej: nuevas y aprendidas)
             processed.forEach(group => {
-                this.keyboard.draw(group.keys, {
-                    color: group.color,
-                    blink: group.blink
-                });
+                groupsForBasicKeyboard.push(group); // Añade el grupo completo
+                allKeysForGuides = allKeysForGuides.concat(group.keys);
             });
         } else {
-            this.keyboard.draw(processed.keys, {
-                color: processed.color,
-                blink: processed.blink
-            });
+            // Caso simple (string, array simple, objeto configurable)
+            groupsForBasicKeyboard.push(processed); // Añade el grupo simple
+            allKeysForGuides = processed.keys;
         }
 
-        if (this.settings.guides) this.guides.draw(processed.keys);
+        // ¡CORRECCIÓN CLAVE! Llama a BasicKeyboard.draw UNA SOLA VEZ con todos los grupos
+        this.keyboard.draw(groupsForBasicKeyboard); 
+
+        // Actualizar capas adicionales
+        if (this.settings.guides) this.guides.draw(allKeysForGuides);
         if (this.settings.hands) this.hands.draw();
-        
-        // Cada vez que se redibuja, también actualizamos la posición de los controles
+
         this.updateControlsPosition();
     }
 
@@ -92,15 +90,11 @@ export default class KeyboardDisplay {
         this.lastKeys = [];
     }
 
-    // ------------------ NUEVO: Método para cambiar la posición global del KeyboardDisplay ------------------
-    // Este método debe ser llamado desde la escena (InterlevelScene, GameManager)
-    // para mover el teclado completo.
     setPosition(x, y) {
         this.container.setPosition(x, y);
-        this.updateControlsPosition(); // Recalcula la posición de los controles
+        this.updateControlsPosition();
     }
 
-    // ------------------ Método para crear los objetos de UI de los controles ------------------
     createControlsUI() {
         const buttonStyle = {
             fontSize: "12px",
@@ -126,16 +120,11 @@ export default class KeyboardDisplay {
             .on("pointerdown", () => this.toggleSetting("hands"));
     }
 
-    // ------------------ Método para actualizar la posición de los controles ------------------
     updateControlsPosition() {
-        // Obtener los límites GLOBALES del contenedor principal de KeyboardDisplay
         const kbBounds = this.container.getBounds(); 
-        
-        // Calcular posX y offsetY para los botones
-        const posX = kbBounds.x + kbBounds.width + 20; // Margen de 50px
+        const posX = kbBounds.x + kbBounds.width + 50; 
         let offsetY = kbBounds.y;
 
-        // Aplicar la posición a cada botón
         if (this.btnGuides) {
             this.btnGuides.setPosition(posX, offsetY);
             offsetY += 30; 
@@ -149,7 +138,6 @@ export default class KeyboardDisplay {
         }
     }
 
-    // === Métodos Privados === (o internos)
     toggleSetting(setting) {
         this.settings[setting] = !this.settings[setting];
         localStorage.setItem(`keyboard_${setting}`, this.settings[setting]);
@@ -205,7 +193,7 @@ export default class KeyboardDisplay {
         if (Array.isArray(input) && input.length === 2 && Array.isArray(input[0]) && Array.isArray(input[1])) {
             return [
                 { keys: input[0].flatMap(getKeysForChar), color: colors.primary },
-                { keys: input[1].flatMap(getKeysForChar), color: colors.secondary }
+                { keys: input[1].flatMap(getKeysForChar), color: colors.secondary },
             ];
         }
         if (typeof input === 'object' && !Array.isArray(input)) {
@@ -224,7 +212,6 @@ export default class KeyboardDisplay {
       if (!this.keyboard || typeof this.keyboard.getKeyPosition !== 'function') {
           throw new Error('BasicKeyboard no está inicializado correctamente en KeyboardDisplay');
       }
-      // getKeyPosition de BasicKeyboard ya devuelve coordenadas globales
       return this.keyboard.getKeyPosition(key); 
     }
 
@@ -233,12 +220,10 @@ export default class KeyboardDisplay {
     }
 
     getExplosionLineY() {
-        // Asegúrate de que ExplosionLineLayer tiene un método getLineY() que devuelve la Y global
         if (this.explosionLine && typeof this.explosionLine.getLineY === 'function') {
             return this.explosionLine.getLineY();
         }
-        // Fallback si no se puede obtener de la capa
         const kbBounds = this.container.getBounds();
-        return kbBounds.y + kbBounds.height - 50; // Estimación: 50px sobre el borde inferior
+        return kbBounds.y + kbBounds.height - 50;
     }
 }

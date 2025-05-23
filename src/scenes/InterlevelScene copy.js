@@ -64,23 +64,30 @@ export default class InterLevelScene extends Phaser.Scene {
     setupKeyboard() {
         try {
             // 3. Teclado centrado con posición responsive
-            const centerY = this.cameras.main.centerY + (this.cameras.main.height < 600 ? 30 : 100);
+            const centerY = this.cameras.main.centerY + (this.cameras.main.height < 600 ? 30 : 100); // 
             
-            this.keyboardDisplay = new KeyboardDisplay(this, {
-                x: this.cameras.main.centerX,
-                y: centerY,
-                scale: this.getScale(),
-                handsOptions: {
-                    visible: this.registry.get('showHands') !== false
+            // Instanciar el teclado. Puedes darle una 'x' inicial que luego ajustarás.
+            // O directamente pasas 0 y luego lo centras.
+            this.keyboardDisplay = new KeyboardDisplay(this, { // 
+                x: 0, // Inicia en 0 o cualquier valor temporal, ya que lo centraremos después 
+                y: centerY, 
+                scale: this.getScale(), 
+                handsOptions: { 
+                    visible: this.registry.get('showHands') !== false 
                 }
             });
 
-            // 4. Forzar redibujado inicial
-            this.keyboardDisplay.draw([]);
+            // 4. Forzar redibujado inicial (esto es importante para que el teclado tenga un ancho) 
+            this.keyboardDisplay.draw([]); 
+
+            // *** Añadir estas líneas para centrar el teclado horizontalmente ***
+            const keyboardBounds = this.keyboardDisplay.getContainer().getBounds();
+            this.keyboardDisplay.container.setX(this.cameras.main.centerX - keyboardBounds.width / 2);
+            // *******************************************************************
             
         } catch (error) {
-            console.error('Error al crear teclado:', error);
-            this.createFallbackMessage();
+            console.error('Error al crear teclado:', error); 
+            this.createFallbackMessage(); 
         }
     }
 

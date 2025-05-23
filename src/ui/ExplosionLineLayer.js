@@ -47,9 +47,9 @@ export default class ExplosionLineLayer {
     
     // Estilo de línea (sólida o punteada)
     if (this.config.dashLength > 0) {
-      this.drawDashedLine(0, -20, bounds.width);
+      this.drawDashedLine(0, this.config.offsetY, bounds.width);
     } else {
-      this.drawSolidLine(0, -20, bounds.width);
+      this.drawSolidLine(0, this.config.offsetY, bounds.width);
     }
 
     // Actualizar efecto si existe
@@ -103,15 +103,15 @@ export default class ExplosionLineLayer {
     return bounds.y + this.config.offsetY;
   }
 
-setVisible(flag) {
-    this.visible = flag;
-    if (flag) {
-        this.draw(); // Redibuja cuando se activa
-    } else {
-        this.clear(); // Limpia cuando se desactiva
-    }
-    return this;
-}
+  setVisible(flag) {
+      this.visible = flag;
+      if (flag) {
+          this.draw(); // Redibuja cuando se activa
+      } else {
+          this.clear(); // Limpia cuando se desactiva
+      }
+      return this;
+  }
 
   clear() {
     this.graphics.clear();

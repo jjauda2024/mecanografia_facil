@@ -55,6 +55,7 @@ function getKeysForChar(char) {
     }
 
     return [char.toUpperCase()];
+
 }
 
 function getFingerForKey(key) {

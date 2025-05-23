@@ -7,8 +7,8 @@ export default class FallingLetter {
         this.scene = scene;
         this.originalChar = char;
 
-        // Representar el espacio como la palabra 'Espacio'
-        this.char = char === ' ' ? 'espacio' : char;
+        // // Representar el espacio como la palabra 'Espacio'
+        // this.char = char === ' ' ? 'espacio' : char;
 
         // Determinar la tecla física principal (la última del combo)
         // Para espacios forzamos 'Espacio'

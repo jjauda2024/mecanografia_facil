@@ -13,7 +13,7 @@ export default class GameManager {
     mode = "falling"
   ) {
     console.log("🧠 GameManager constructor:", letters, speedStart, speedMax);
-    this.scene = scene;
+    this.scene = scene; // ¡Importante: 'scene' es la escena de Phaser!
     this.letters = letters;
     this.level = level;
     this.mode = mode;
@@ -26,18 +26,12 @@ export default class GameManager {
 
     this.fallingLetter = null;
 
-    this.keyboard = new KeyboardDisplay(scene, {
-      keyColor: 0x222222,
-      highlightColor: 0xffcc00,
-    });
+    this.setupKeyboard();
 
-    this.keyboard.draw(); // Sin resaltado al inicio
-    const showLine = JSON.parse(localStorage.getItem('linea') ?? 'true');
-      this.keyboard.explosionEnabled = showLine;
-
-    this.scoreManager = new ScoreManager(scene);
-    const baseY = this.keyboard.getExplosionLineY();
-    this.scene.scene.launch('OpcionesScene', { baseY: baseY + 40 });
+    // Las siguientes líneas también necesitan usar 'this.scene'
+    this.scoreManager = new ScoreManager(this.scene); // Pasa la escena al ScoreManager
+    const baseY = this.keyboardDisplay.getExplosionLineY(); // Usar this.keyboardDisplay
+    // this.scene.scene.launch('OpcionesScene', { baseY: baseY + 40 });
 
     this.scene.input.keyboard.on("keydown", (event) => this.handleKey(event));
 
@@ -54,6 +48,53 @@ export default class GameManager {
     }
   }
 
+  setupKeyboard() {
+      try {
+          // 3. Teclado centrado con posición responsive
+          // Usar this.scene.cameras.main
+          const centerY = this.scene.cameras.main.centerY + (this.scene.cameras.main.height < 600 ? 30 : 100); 
+          
+          // Instanciar el teclado.
+          // El primer argumento debe ser la escena.
+          this.keyboardDisplay = new KeyboardDisplay(this.scene, { 
+              x: 0, 
+              y: centerY, 
+              scale: this.getScale(), 
+              // *** Agrega la propiedad initialSettings aquí ***
+              initialSettings: {
+                  guides: true, // Guías encendidas
+                  explosionLine: true, // Línea de explosión encendida
+                  // hands: this.scene.registry.get('showHands') !== false // Manos según el registro
+                  hands: true
+              },
+          });
+
+          // 4. Forzar redibujado inicial
+          this.keyboardDisplay.draw([]); 
+
+          // *** Añadir estas líneas para centrar el teclado horizontalmente ***
+          // Asegúrate de que el KeyboardDisplay.js ya tiene el fix para getContainer().getBounds()
+          // const keyboardBounds = this.keyboardDisplay.getContainer().getBounds();
+          const keyboardBounds = this.keyboardDisplay.container.getBounds();
+          this.keyboardDisplay.container.setX(this.scene.cameras.main.centerX - keyboardBounds.width / 2); // Usar this.scene.cameras.main
+          // *******************************************************************
+          
+      } catch (error) {
+          console.error('Error al crear teclado en GameManager:', error); // Mensaje más específico
+          // this.createFallbackMessage(); // Este método no existe en GameManager, está en la escena
+          // Podrías lanzar un evento o loguear el error para que la escena lo maneje
+      }
+  }
+
+  // Este método getScale() debe pertenecer al GameManager si lo usas aquí.
+  // Si está en la escena, deberías llamarlo como this.scene.getScale()
+  getScale() {
+    const width = this.scene.cameras.main.width; // Usar this.scene.cameras.main
+    if (width < 500) return 0.6;
+    if (width < 800) return 0.8;
+    return 1.0;
+  }
+
   spawnLetter() {
     if (this.letterIndex >= this.letters.length) {
       this.letterIndex = 0; // reiniciar si se desea ciclo continuo
@@ -67,12 +108,12 @@ export default class GameManager {
     this.fallingLetter = new FallingLetter(
       this.scene,
       letter,
-      this.keyboard.getKeyPositions(),
-      this.keyboard.getExplosionLineY()
+      this.keyboardDisplay.getKeyPositions(), // Usar this.keyboardDisplay
+      this.keyboardDisplay.getExplosionLineY() // Usar this.keyboardDisplay
     );
 
-    this.keyboard.clear();
-    this.keyboard.draw(letter);
+    this.keyboardDisplay.clear(); // Usar this.keyboardDisplay
+    this.keyboardDisplay.draw(letter); // Usar this.keyboardDisplay
   }
 
   handleKey(event) {
@@ -100,31 +141,31 @@ export default class GameManager {
     }
   }
 
-handleMiss() {
-  // Verifica si el sonido de error está activado
-  const isSoundEnabled = JSON.parse(localStorage.getItem("soundEnabled") ?? "true");
-  if (isSoundEnabled && this.scene.sound?.get("error")) {
-    this.scene.sound.play("error");
-  }
+  handleMiss() {
+    // Verifica si el sonido de error está activado
+    const isSoundEnabled = JSON.parse(localStorage.getItem("soundEnabled") ?? "true");
+    if (isSoundEnabled && this.scene.sound?.get("error")) { // Usar this.scene.sound
+      this.scene.sound.play("error");
+    }
 
-  this.scoreManager.addMiss();
-  this.misses++;
+    this.scoreManager.addMiss();
+    this.misses++;
 
-  if (this.misses >= this.maxMisses) {
-    console.log("💀 Juego terminado: demasiados errores");
-    this.scene.scene.start("RetryScene", { level: this.level });
-  } else {
-    this.fallingLetter.destroy();
-    this.letterIndex--; // retrocedemos el índice
-    this.spawnLetter(); // → vuelve a lanzar la misma letra
+    if (this.misses >= this.maxMisses) {
+      console.log("💀 Juego terminado: demasiados errores");
+      this.scene.scene.start("RetryScene", { level: this.level });
+    } else {
+      this.fallingLetter.destroy();
+      this.letterIndex--; // retrocedemos el índice
+      this.spawnLetter(); // → vuelve a lanzar la misma letra
+    }
   }
-}
 
 
   increaseSpeedIfNeeded() {
     this.speed += this.speedIncrement;
     if (this.speed > this.speedMax) this.speed = this.speedMax;
-    console.log("🚀 Velocidad actual: ${this.speed.toFixed(2)}");
+    console.log(`🚀 Velocidad actual: ${this.speed.toFixed(2)}`); // Usar template literals
   }
 
   advanceToNext() {

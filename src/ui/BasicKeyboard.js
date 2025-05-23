@@ -38,62 +38,98 @@ export default class BasicKeyboard {
     this.keyPositions = {};
   }
 
-  /**
-   * Dibuja el teclado resaltando las teclas que estén en `keys`.
-   * @param {string[]} keys – Array de etiquetas de teclas a resaltar
-   */
-  draw(keys = []) {
-    // limpia dibujo previo
+/**
+ * Dibuja el teclado resaltando teclas específicas.
+ * Puede recibir:
+ * - Un array simple de strings (teclas a resaltar con color por defecto).
+ * - Un array de objetos { keys: string[], color: number, blink?: boolean } para múltiples grupos con colores.
+ */
+draw(highlightGroups = []) {
+    // Limpia el dibujo previo UNA SOLA VEZ
     this._container.removeAll(true);
     this.keyPositions = {};
 
-    let y = 0;
-    for (const row of this.layout) {
-      // centrar cada fila
-      const rowWidth = this.getRowWidth(row);
-      let x = (this.getMaxRowWidth() - rowWidth) / 2;
-
-      for (const key of row) {
-        const width    = this.getKeyWidth(key);
-        const centerX  = x + width / 2;
-        const isHl     = keys.includes(key);
-        const fillCol  = isHl ? this.highlightColor : this.keyColor;
-
-        // rectángulo de la tecla
-        const rect = this.scene.add
-          .rectangle(x, y, width, this.keyHeight, fillCol)
-          .setOrigin(0)
-          .setStrokeStyle(2, 0xffffff);
-
-        // texto de la tecla (espacio sin etiqueta)
-        const label    = key === "Espacio" ? "" : key;
-        const fontSize = this.getFontSizeForKey(key, width);
-        const txt = this.scene.add
-          .text(x + width/2, y + this.keyHeight/2, label, {
-            fontSize: `${fontSize}px`,
-            color: isHl ? "#000000" : "#ffffff",
-            fontFamily: "monospace"
-          })
-          .setOrigin(0.5);
-
-        // lo metemos en el container
-        this._container.add([ rect, txt ]);
-
-        // guardamos posición absoluta de centro
-        this.keyPositions[key] = {
-          x: centerX,
-          y,
-          width
-        };
-
-        x += width + this.keySpacing;
-      }
-
-      y += this.keyHeight + this.rowSpacing;
+    // Normalizar la entrada a un array de grupos si es un array simple de strings
+    let groupsToDraw = [];
+    if (highlightGroups.length > 0 && typeof highlightGroups[0] === 'string') {
+        // Si es un array simple de strings, lo convertimos a un grupo con color por defecto
+        groupsToDraw.push({ keys: highlightGroups, color: this.highlightColor });
+    } else {
+        // Si ya es un array de objetos, lo usamos directamente
+        groupsToDraw = highlightGroups;
     }
 
+    let y = 0;
+    for (const row of this.layout) {
+        const rowWidth = this.getRowWidth(row);
+        let x = (this.getMaxRowWidth() - rowWidth) / 2;
+
+        for (const key of row) {
+            const width = this.getKeyWidth(key);
+            const centerX = x + width / 2;
+
+            // Determinar el color de la tecla:
+            // Buscar si esta tecla está en alguno de los grupos a resaltar
+            let currentFillColor = this.keyColor;
+            let isBlinking = false;
+            let textColor = "#ffffff"; // Color de texto por defecto
+
+            for (const group of groupsToDraw) {
+                if (group.keys.includes(key)) {
+                    currentFillColor = group.color;
+                    isBlinking = group.blink || false;
+                    textColor = (currentFillColor === 0xFF9900 || currentFillColor === 0x00AAFF) ? "#000000" : "#ffffff"; // Ejemplo: texto negro para colores brillantes
+                    break; // Una vez que encontramos un grupo que resalta esta tecla, usamos su color
+                }
+            }
+
+            const rect = this.scene.add
+                .rectangle(x, y, width, this.keyHeight, currentFillColor)
+                .setOrigin(0)
+                .setStrokeStyle(2, 0xffffff);
+
+            const label = key === "Espacio" ? "" : key;
+            const fontSize = this.getFontSizeForKey(key, width);
+            const txt = this.scene.add
+                .text(x + width/2, y + this.keyHeight/2, label, {
+                    fontSize: `${fontSize}px`,
+                    color: textColor, // Usar el color de texto determinado
+                    fontFamily: "monospace"
+                })
+                .setOrigin(0.5);
+
+            this._container.add([ rect, txt ]);
+
+            this.keyPositions[key] = {
+                x: centerX,
+                y,
+                width
+            };
+
+            // Si la tecla debe parpadear, añade un tween
+            if (isBlinking) {
+                this.scene.tweens.add({
+                    targets: rect,
+                    alpha: { from: 1, to: 0.5 },
+                    duration: 300,
+                    yoyo: true,
+                    repeat: -1
+                });
+                 this.scene.tweens.add({ // También para el texto
+                    targets: txt,
+                    alpha: { from: 1, to: 0.5 },
+                    duration: 300,
+                    yoyo: true,
+                    repeat: -1
+                });
+            }
+
+            x += width + this.keySpacing;
+        }
+        y += this.keyHeight + this.rowSpacing;
+    }
     return this;
-  }
+}
 
   /** Para que capas externas (Guides, Hands…) sepan dónde está cada tecla */
   getKeyPosition(key) {
