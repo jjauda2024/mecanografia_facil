@@ -1,23 +1,26 @@
 // ui/BasicKeyboard.js
 // Clase base para renderizar un teclado visual resaltando teclas específicas
 
+// CAMBIO: Eliminada la importación de COLORS.js
+// import COLORS from "../config/colors.js";
+
 export default class BasicKeyboard {
   constructor(scene, options = {}) {
     this.scene = scene;
 
-    // configuración de tamaños y colores
-    this.keyWidth       = options.keyWidth      ?? 44;
-    this.keyHeight      = options.keyHeight     ?? 33;
-    this.keySpacing     = options.keySpacing    ?? 6;
-    this.rowSpacing     = options.rowSpacing    ?? 6;
-    this.highlightColor = options.highlightColor ?? 0xff9900;
-    this.keyColor       = options.keyColor      ?? 0x333333;
+    this.keyWidth = options.keyWidth ?? 44;
+    this.keyHeight = options.keyHeight ?? 33;
+    this.keySpacing = options.keySpacing ?? 6;
+    this.rowSpacing = options.rowSpacing ?? 6;
 
-    // el contenedor “privado” donde iremos añadiendo rectángulos y textos
-    this._container    = scene.add.container(options.x ?? 0, options.y ?? 0);
-    this.keyPositions  = {};
+    // ORDEN: Colores por defecto definidos como NÚMEROS para consistencia con el uso en rectángulos.
+    // Si se pasan `options.highlightColor` o `options.keyColor`, también deberían ser números.
+    this.highlightColor = options.highlightColor ?? 0xff9900; // Naranja como número
+    this.keyColor = options.keyColor ?? 0x333333; // Gris oscuro como número
 
-    // tu layout original
+    this._container = scene.add.container(options.x ?? 0, options.y ?? 0);
+    this.keyPositions = {};
+
     this.layout = [
       ["º","1","2","3","4","5","6","7","8","9","0","´","¿","Backspace"],
       ["Tab","Q","W","E","R","T","Y","U","I","O","P","´","+","Enter"],
@@ -27,36 +30,37 @@ export default class BasicKeyboard {
     ];
   }
 
-  /** Devuelve el container para que otras clases puedan medirlo/reposicionarlo */
   getContainer() {
     return this._container;
   }
 
-  /** Elimina todo lo dibujado y resetea las posiciones */
   clear() {
     this._container.removeAll(true);
     this.keyPositions = {};
   }
 
-/**
- * Dibuja el teclado resaltando teclas específicas.
- * Puede recibir:
- * - Un array simple de strings (teclas a resaltar con color por defecto).
- * - Un array de objetos { keys: string[], color: number, blink?: boolean } para múltiples grupos con colores.
- */
-draw(highlightGroups = []) {
-    // Limpia el dibujo previo UNA SOLA VEZ
+  /**
+   * Dibuja el teclado resaltando teclas específicas.
+   * Puede recibir:
+   * - Un array simple de strings (teclas a resaltar con `this.highlightColor`).
+   * - Un array de objetos { keys: string[], color: number, blink?: boolean } para múltiples grupos con colores.
+   * @param {Array<string>|Array<{keys: string[], color: number, blink?: boolean}>} highlightGroups
+   */
+  draw(highlightGroups = []) {
     this._container.removeAll(true);
     this.keyPositions = {};
 
-    // Normalizar la entrada a un array de grupos si es un array simple de strings
     let groupsToDraw = [];
+    // ORDEN: Si highlightGroups es un array de strings, usa this.highlightColor (que ahora es un número)
+    // lo cual es consistente con el JSDoc `color: number` para los grupos.
     if (highlightGroups.length > 0 && typeof highlightGroups[0] === 'string') {
-        // Si es un array simple de strings, lo convertimos a un grupo con color por defecto
-        groupsToDraw.push({ keys: highlightGroups, color: this.highlightColor });
+        groupsToDraw.push({ keys: highlightGroups, color: this.highlightColor, blink: false });
     } else {
-        // Si ya es un array de objetos, lo usamos directamente
-        groupsToDraw = highlightGroups;
+        groupsToDraw = highlightGroups.map(group => ({
+            keys: group.keys,
+            color: group.color, // Asumimos que group.color es un NÚMERO según JSDoc
+            blink: group.blink || false
+        }));
     }
 
     let y = 0;
@@ -68,32 +72,58 @@ draw(highlightGroups = []) {
             const width = this.getKeyWidth(key);
             const centerX = x + width / 2;
 
-            // Determinar el color de la tecla:
-            // Buscar si esta tecla está en alguno de los grupos a resaltar
+            // ORDEN: currentFillColor se inicializa con this.keyColor (NÚMERO).
             let currentFillColor = this.keyColor;
             let isBlinking = false;
-            let textColor = "#ffffff"; // Color de texto por defecto
+            let isHighlighted = false; // Para saber si se aplicó un color de resaltado
 
             for (const group of groupsToDraw) {
                 if (group.keys.includes(key)) {
-                    currentFillColor = group.color;
-                    isBlinking = group.blink || false;
-                    textColor = (currentFillColor === 0xFF9900 || currentFillColor === 0x00AAFF) ? "#000000" : "#ffffff"; // Ejemplo: texto negro para colores brillantes
-                    break; // Una vez que encontramos un grupo que resalta esta tecla, usamos su color
+                    currentFillColor = group.color; // group.color se espera que sea NÚMERO
+                    isBlinking = group.blink;
+                    isHighlighted = true;
+                    break;
                 }
             }
 
+            // ORDEN: El color de relleno del rectángulo (currentFillColor) es un NÚMERO.
             const rect = this.scene.add
                 .rectangle(x, y, width, this.keyHeight, currentFillColor)
                 .setOrigin(0)
+                // ORDEN: El color del borde es un NÚMERO.
                 .setStrokeStyle(2, 0xffffff);
+
+            // --- Lógica para el color del texto ---
+            let textColor; // Será un STRING para Phaser Text
+            // ORDEN: Definimos los colores brillantes como NÚMEROS para la comparación.
+            const BRIGHT_ORANGE_NUM = 0xff9900;
+            const BRIGHT_BLUE_NUM = 0x00aaff;
+            const BRIGHT_YELLOW_NUM = 0xffcc00;
+            // (Puedes añadir más colores brillantes aquí si los usas para resaltar)
+
+            if (isHighlighted) {
+                // Si la tecla está resaltada, decidimos el color del texto basado en el fondo.
+                // currentFillColor es un NÚMERO aquí.
+                if (currentFillColor === BRIGHT_ORANGE_NUM || 
+                    currentFillColor === BRIGHT_BLUE_NUM || 
+                    currentFillColor === BRIGHT_YELLOW_NUM) {
+                    textColor = '#000000'; // Texto negro (STRING) para fondos brillantes
+                } else {
+                    textColor = '#FFFFFF'; // Texto blanco (STRING) para otros fondos resaltados
+                }
+            } else {
+                // Para teclas no resaltadas (usan this.keyColor como fondo, que es 0x333333 por defecto)
+                textColor = '#BBBBBB'; // Texto gris claro (STRING) por defecto
+            }
+            // --- Fin lógica color del texto ---
 
             const label = key === "Espacio" ? "" : key;
             const fontSize = this.getFontSizeForKey(key, width);
+            // ORDEN: El color del texto (textColor) es un STRING.
             const txt = this.scene.add
                 .text(x + width/2, y + this.keyHeight/2, label, {
                     fontSize: `${fontSize}px`,
-                    color: textColor, // Usar el color de texto determinado
+                    color: textColor,
                     fontFamily: "monospace"
                 })
                 .setOrigin(0.5);
@@ -106,8 +136,8 @@ draw(highlightGroups = []) {
                 width
             };
 
-            // Si la tecla debe parpadear, añade un tween
             if (isBlinking) {
+                // Lógica de parpadeo (tweens) sin cambios relevantes de color aquí.
                 this.scene.tweens.add({
                     targets: rect,
                     alpha: { from: 1, to: 0.5 },
@@ -115,7 +145,7 @@ draw(highlightGroups = []) {
                     yoyo: true,
                     repeat: -1
                 });
-                 this.scene.tweens.add({ // También para el texto
+                this.scene.tweens.add({
                     targets: txt,
                     alpha: { from: 1, to: 0.5 },
                     duration: 300,
@@ -129,9 +159,8 @@ draw(highlightGroups = []) {
         y += this.keyHeight + this.rowSpacing;
     }
     return this;
-}
+  }
 
-  /** Para que capas externas (Guides, Hands…) sepan dónde está cada tecla */
   getKeyPosition(key) {
     const pos = this.keyPositions[key];
     if (!pos) return null;
@@ -142,21 +171,19 @@ draw(highlightGroups = []) {
     };
   }
 
-  /* ---------------- métodos de cálculo de anchos/fuentes -------------- */
-
   getKeyWidth(key) {
     const kw = this.keyWidth;
-    if (key === "º")           return kw * 0.8;
-    if (key === "Backspace")   return kw * 2;
-    if (key === "Tab")         return kw * 1.6;
-    if (key === "Bloq Mayús")  return kw * 1.9;
-    if (key === "Enter")       return kw * 1.3;
-    if (key === "Ent")         return kw * 1;
-    if (key === "Shift")       return kw * 1.6;
-    if (key === "Shift ")      return kw * 2.5;
-    if (key === "Ctrl ")       return kw * 1.6;
+    if (key === "º")          return kw * 0.8;
+    if (key === "Backspace")  return kw * 2;
+    if (key === "Tab")        return kw * 1.6;
+    if (key === "Bloq Mayús") return kw * 1.9;
+    if (key === "Enter")      return kw * 1.3;
+    if (key === "Ent")        return kw * 1;
+    if (key === "Shift")      return kw * 1.6;
+    if (key === "Shift ")     return kw * 2.5;
+    if (key === "Ctrl ")      return kw * 1.6;
     if (["Ctrl","Alt","AltGr","Fn","Win","↑↓"].includes(key)) return kw * 1;
-    if (key === "Espacio")     return kw * 5.5;
+    if (key === "Espacio")    return kw * 5.5;
     if (["←","→"].includes(key)) return kw * 1.2;
     return kw;
   }
@@ -174,7 +201,6 @@ draw(highlightGroups = []) {
   }
 
   getRowWidth(row) {
-    // suma de anchos + espacios, restando el último gap
     return row.reduce((tot, k) => tot + this.getKeyWidth(k) + this.keySpacing, 0)
            - this.keySpacing;
   }
@@ -183,12 +209,10 @@ draw(highlightGroups = []) {
     return Math.max(...this.layout.map(r => this.getRowWidth(r)));
   }
 
-  /** Para debugging o quien necesite saber todas las posiciones */
   getKeyPositions() {
       return Object.keys(this.keyPositions).reduce((acc, key) => {
           acc[key] = this.getKeyPosition(key);
           return acc;
       }, {});
   }
-
 }

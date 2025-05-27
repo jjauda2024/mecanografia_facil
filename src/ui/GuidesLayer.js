@@ -11,8 +11,6 @@ export default class GuidesLayer {
         throw new Error('Se requiere una instancia válida de KeyboardDisplay');
     }
     
-    // this.keyboardDisplay = keyboardDisplay;
-
     this.scene = scene;
     this.keyboardDisplay = keyboardDisplay;
 
@@ -60,24 +58,24 @@ export default class GuidesLayer {
       this.graphics.fillCircle(from.x, fromY, 12);
 
       // Línea/flecha hacia la tecla
-      this.graphics.lineStyle(4, 0xff3333);
+      this.graphics.lineStyle(12, 0xff3333);
       this.graphics.beginPath();
       this.graphics.moveTo(from.x, fromY);
       this.graphics.lineTo(to.x, toY);
       this.graphics.strokePath();
 
       // Cabeza de flecha
-      const angle = Phaser.Math.Angle.Between(from.x, fromY, to.x, toY);
-      const arrowLength = 10;
-      const ax = to.x - Math.cos(angle) * arrowLength;
-      const ay = to.y - Math.sin(angle) * arrowLength;
-      this.graphics.fillStyle(0xff3333, 1);
-      this.graphics.beginPath();
-      this.graphics.moveTo(to.x, to.y);
-      this.graphics.lineTo(ax + Math.sin(angle)*5, ay - Math.cos(angle)*5);
-      this.graphics.lineTo(ax - Math.sin(angle)*5, ay + Math.cos(angle)*5);
-      this.graphics.closePath();
-      this.graphics.fillPath();
+      // const angle = Phaser.Math.Angle.Between(from.x, fromY, to.x, toY);
+      // const arrowLength = 10;
+      // const ax = to.x - Math.cos(angle) * arrowLength;
+      // const ay = to.y - Math.sin(angle) * arrowLength;
+      // this.graphics.fillStyle(0xff3333, 1);
+      // this.graphics.beginPath();
+      // this.graphics.moveTo(to.x, to.y);
+      // this.graphics.lineTo(ax + Math.sin(angle)*5, ay - Math.cos(angle)*5);
+      // this.graphics.lineTo(ax - Math.sin(angle)*5, ay + Math.cos(angle)*5);
+      // this.graphics.closePath();
+      // this.graphics.fillPath();
     });
   }
 
