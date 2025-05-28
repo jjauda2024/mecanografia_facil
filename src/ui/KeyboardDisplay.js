@@ -264,14 +264,56 @@ export default class KeyboardDisplay {
     getContainer() { return this.container; }
 
     getKeyPosition(key) {
-      if (!this.keyboard || typeof this.keyboard.getKeyPosition !== 'function') {
-          throw new Error('BasicKeyboard no está inicializado correctamente en KeyboardDisplay');
-      }
-      return this.keyboard.getKeyPosition(key); 
+        if (!this.keyboard || typeof this.keyboard.getKeyPosition !== 'function') {
+            throw new Error('BasicKeyboard no está inicializado correctamente en KeyboardDisplay');
+        }
+        // Get the position of the key relative to the BasicKeyboard's container
+        const basicKbKeyPos = this.keyboard.keyPositions[key]; // Access directly the stored relative positions
+
+        if (!basicKbKeyPos) return null; // Key not found
+
+        const kbBounds = this.container.getBounds(); 
+        const posX = basicKbKeyPos.x; //+ kbBounds.x;
+        const posY = basicKbKeyPos.y; // + kbBounds.y;
+
+        // console.log('bounds en getkeyposition:', kbBounds, 'posición X: ', posX, ' posición Y; ', posY);
+
+        // Calculate the global position by adding the KeyboardDisplay's container's position
+        return {
+            x: posX, // Add the KeyboardDisplay's container's x
+            y: posY, // Add the KeyboardDisplay's container's y
+            width: basicKbKeyPos.width
+        };
+    }
+    
+    getRelativeKeyPosition(key) {
+        const pos = this.keyboard.keyPositions[key];
+        if (!pos) return null;
+        // The positions in keyPositions are already relative to this._container
+        return {
+        x: pos.x, // Already relative
+        y: pos.y, // Already relative
+        width: pos.width
+        };
     }
 
     getKeyPositions() {
-        return this.keyboard.getKeyPositions();
+        if (!this.keyboard) {
+            throw new Error('BasicKeyboard no está inicializado en KeyboardDisplay.');
+        }
+        const allRelativePositions = this.keyboard.getKeyPositions(); // Get all relative positions from BasicKeyboard
+        const containerGlobalPos = this.container.getBounds(); // Get bounds for global x, y
+
+        const globalPositions = {};
+        for (const key in allRelativePositions) {
+            const relativePos = allRelativePositions[key];
+            globalPositions[key] = {
+                x: relativePos.x + containerGlobalPos.x,
+                y: relativePos.y + containerGlobalPos.y,
+                width: relativePos.width
+            };
+        }
+        return globalPositions;
     }
 
     getExplosionLineY() {

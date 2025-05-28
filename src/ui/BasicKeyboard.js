@@ -158,17 +158,8 @@ export default class BasicKeyboard {
         }
         y += this.keyHeight + this.rowSpacing;
     }
+    console.log('containerX: ', this._container.x, ' containerY: ', this._container.y);
     return this;
-  }
-
-  getKeyPosition(key) {
-    const pos = this.keyPositions[key];
-    if (!pos) return null;
-    return {
-      x: pos.x + this._container.x,
-      y: pos.y + this._container.y,
-      width: pos.width
-    };
   }
 
   getKeyWidth(key) {
@@ -209,10 +200,21 @@ export default class BasicKeyboard {
     return Math.max(...this.layout.map(r => this.getRowWidth(r)));
   }
 
+  getKeyPosition(key) {
+    const pos = this.keyPositions[key];
+        if (!pos) return null;
+    return {
+          x: pos.x,
+          y: pos.y,
+          width: pos.width
+    };
+  }
+
   getKeyPositions() {
       return Object.keys(this.keyPositions).reduce((acc, key) => {
           acc[key] = this.getKeyPosition(key);
           return acc;
       }, {});
   }
+  
 }

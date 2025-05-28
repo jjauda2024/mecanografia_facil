@@ -46,8 +46,8 @@ export default class GuidesLayer {
     keys.forEach(key => {
       const finger  = getFingerForKey(key);
       const homeKey = this.homeKeys[finger];
-      const from    = this.keyboardDisplay.getKeyPosition(homeKey);
-      const to      = this.keyboardDisplay.getKeyPosition(key);
+      const from    = this.keyboardDisplay.getRelativeKeyPosition(homeKey);
+      const to      = this.keyboardDisplay.getRelativeKeyPosition(key);
       if (!from || !to || homeKey === key) return;
 
       const fromY = from.y + keyHeight/2;

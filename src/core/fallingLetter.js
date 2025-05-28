@@ -16,14 +16,17 @@ export default class FallingLetter {
             ? 'Espacio' 
             : (getKeysForChar(char) || []).slice(-1)[0];
 
-        const mainKey = keyName.toUpperCase();
+        const mainKey = keyName;
+        console.log('Letra cayendo:', mainKey);
         const position = keyPositions[mainKey] || { x: scene.scale.width / 2, width: 40 };
         this.x = position.x;
         this.y = 160;
         this.explosionLineY = explosionLineY;
+        console.log('Eje x: ', this.x);
+        console.log('Letra recibida:', char);
 
         // Crear el texto en pantalla (mostrando 'Espacio' para espacios)
-        this.text = scene.add.text(this.x, this.y, this.char, {
+        this.text = scene.add.text(this.x, this.y, char, {
             fontSize: '32px',
             color: '#ffffff',
             fontFamily: 'monospace'

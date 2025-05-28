@@ -17,6 +17,7 @@ export const COLORS = {
     ERROR_TEXT: 0xFF0000,    // Rojo para texto de error (si aplica)
     BUTTON_BG_ON: 0x333333,  // Gris oscuro para botones ON
     BUTTON_BG_OFF: 0x555555, // Gris medio para botones OFF
+    EXPLOSION_LINE: 0xFF4444, // Color de la línea de explosión
 };
 
 export default COLORS;

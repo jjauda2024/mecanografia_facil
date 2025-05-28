@@ -1,33 +1,50 @@
+// ui/ExplosionLineLayer.js
+// Capa para dibujar la línea de explosión debajo de las letras que caen
+
+import COLORS from "../config/colors.js"; // Importar colores centralizados
+
 export default class ExplosionLineLayer {
   constructor(scene, keyboardDisplay, options = {}) {
+
+    // Validación crítica
+    if (typeof keyboardDisplay.getKeyPosition !== 'function') {
+        throw new Error('Se requiere una instancia válida de KeyboardDisplay');
+    }
+    
     this.scene = scene;
     this.keyboardDisplay = keyboardDisplay;
     
-    // Configuración con valores por defecto
-    this.config = {
-      color: 0xff4444,       // Color base de la línea
-      thickness: 6,          // Grosor de la línea
-      offsetY: -20,          // Distancia vertical sobre el teclado
-      dashLength: 0,         // Para línea punteada (0 = sólida)
-      glow: false,           // Efecto de brillo
-      glowColor: 0xff0000,   // Color del brillo
-      glowStrength: 1,       // Intensidad del brillo
-      ...options             // Sobrescribe con opciones personalizadas
-    };
-
-    this.visible = true;
     this.graphics = scene.add.graphics();
     this.container = this.graphics;
-    this.effect = null; // Para efectos adicionales
+    this.graphics.setDepth(15);
 
-    // Inicializar con posible efecto de brillo
+    this.visible = true;
+    
+    this.effect = null;
+
+    this.config = {
+      color: 0xFF4444, // Usar color centralizado
+      thickness: 4,
+      offsetY: -20, // Distancia vertical sobre el teclado
+      dashLength: 0,
+      glow: false,
+      glowColor: 0xFFFFFF, // Usar color centralizado
+      glowStrength: 1,
+      ...options
+    };
+
     if (this.config.glow) {
       this.setupGlowEffect();
     }
+
   }
 
-  /** Configura efecto de brillo usando post-procesado */
+  init(data){
+    this.lineaExplosionY = 0;
+  }
+
   setupGlowEffect() {
+    // Asegúrate de que rexGlowFilterPipeline está cargado en tu juego config (en juego.html)
     this.effect = this.scene.plugins.get('rexGlowFilterPipeline').add(this.graphics, {
       distance: 10,
       outerStrength: this.config.glowStrength,
@@ -42,32 +59,55 @@ export default class ExplosionLineLayer {
     this.graphics.clear();
     if (!this.visible) return;
 
-    const bounds = this.keyboardDisplay.getContainer().getBounds();
-    const y = bounds.y + this.config.offsetY;
+    // Obtener las bounds del teclado principal para saber su ancho y posición X global
+    const keyboardBounds = this.keyboardDisplay.getContainer().getBounds();
     
-    // Estilo de línea (sólida o punteada)
+    // Si el teclado aún no tiene un ancho válido, usamos un ancho de pantalla por defecto
+    // Esto es un fallback para asegurar que la línea siempre tenga un tamaño al inicio
+    const lineWidth = keyboardBounds.width > 0 ? keyboardBounds.width : this.scene.scale.width * 0.8;
+    const lineX = keyboardBounds.x > 0 ? keyboardBounds.x : (this.scene.scale.width - lineWidth) / 2;
+
+    // DEBUG: Verificar la posición y ancho calculados de la línea
+    console.log('ExplosionLineLayer.draw() - keyboardBounds:', keyboardBounds);
+    console.log('ExplosionLineLayer.draw() - Calculated lineX (final):', lineX, 'lineWidth (final):', lineWidth);
+
+    const lineY = keyboardBounds.y + this.config.offsetY;
+    this.lineaExplosionY = lineY;
+
+    // Mueve el objeto graphics (el contenedor de esta capa) a la posición global correcta
+    // this.graphics.setPosition(lineX, lineY);
+
+    // Dibuja la línea DENTRO del objeto graphics, desde su origen (0,0)
     if (this.config.dashLength > 0) {
-      this.drawDashedLine(0, this.config.offsetY, bounds.width);
+      this.drawDashedLine(0, this.config.offsetY, lineWidth); // x, y son relativos a this.graphics
     } else {
-      this.drawSolidLine(0, this.config.offsetY, bounds.width);
+      this.drawSolidLine(0, this.config.offsetY, lineWidth); // x, y son relativos a this.graphics
     }
 
-    // Actualizar efecto si existe
     if (this.effect) {
       this.effect.setPosition(this.graphics.x, this.graphics.y);
     }
+
+    // Dentro de draw(), después de calcular lineY
+    console.log(`LINEA Y: ${lineY}, Grosor: ${this.config.thickness}`);
+    console.log(`CAMARA Y: ${this.scene.cameras.main.worldView.y}, CAMARA AltoVisible: ${this.scene.cameras.main.displayHeight}`);
+    console.log(`ESCENA Alto: ${this.scene.scale.height}`);
+
+    if (lineY + this.config.thickness < this.scene.cameras.main.worldView.y || lineY > this.scene.cameras.main.worldView.y + this.scene.cameras.main.displayHeight) {
+        console.warn("¡ALERTA! ¡La línea de explosión está VERTICALMENTE FUERA de la vista de la cámara!");
+    }
   }
 
-  /** Dibuja línea sólida */
   drawSolidLine(x, y, width) {
-    this.graphics.lineStyle(this.config.thickness, this.config.color);
+    this.graphics.lineStyle(this.config.thickness, this.config.color); // Verde brillante neón
     this.graphics.beginPath();
     this.graphics.moveTo(x, y);
     this.graphics.lineTo(x + width, y);
     this.graphics.strokePath();
+    console.log('Graphics visibility:', this.graphics.visible, 'Graphics alpha:', this.graphics.alpha);
+    console.log('Dibuja una línea desde:', x, ' sobre y = ', y, ' con una distancia de: ', width, ' de este color:', this.config.color, ' con este ancho:', this.config.thickness);
   }
 
-  /** Dibuja línea punteada */
   drawDashedLine(x, y, width) {
     const dash = this.config.dashLength;
     const gap = dash * 0.5;
@@ -83,7 +123,6 @@ export default class ExplosionLineLayer {
     }
   }
 
-  /** Actualiza configuración dinámica */
   updateConfig(newConfig) {
     this.config = { ...this.config, ...newConfig };
     if (newConfig.glow !== undefined) {
@@ -97,10 +136,13 @@ export default class ExplosionLineLayer {
     this.draw();
   }
 
-  /** Devuelve posición Y con offset aplicado */
+  /** Devuelve la posición Y global de la línea de explosión */
   getExplosionLineY() {
-    const bounds = this.keyboardDisplay.getContainer().getBounds();
-    return bounds.y + this.config.offsetY;
+    // La posición Y global es la Y del graphics container
+    // return this.graphics.y;
+    console.log('lineaExplosionY:', this.lineaExplosionY);
+    return this.lineaExplosionY;
+
   }
 
   setVisible(flag) {
