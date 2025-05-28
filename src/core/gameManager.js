@@ -154,6 +154,8 @@ export default class GameManager {
       this.scene.sound.play("error");
     }
 
+    this.scene.sound.play("error");
+
     this.scoreManager.addMiss();
     this.misses++;
 

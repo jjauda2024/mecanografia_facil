@@ -115,7 +115,22 @@ export default class KeyboardDisplay {
         this.explosionLine.clear();
         this.hands.clear();
         this.lastKeys = []; // Limpiar lastKeys al borrar
+
+        // *** Añadir la destrucción de los botones de control ***
+        if (this.btnGuides) {
+            this.btnGuides.destroy();
+            this.btnGuides = null; // Para evitar referencias a objetos destruidos
+        }
+        if (this.btnExplosion) {
+            this.btnExplosion.destroy();
+            this.btnExplosion = null;
+        }
+        if (this.btnHands) {
+            this.btnHands.destroy();
+            this.btnHands = null;
+        }
     }
+
 
     // Método público para mover el teclado y sincronizar capas/controles
     setPosition(x, y) {
