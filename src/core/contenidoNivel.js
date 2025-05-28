@@ -53,33 +53,29 @@ export const ContenidoNivel = {
     // Función auxiliar para agregar letras sin repeticiones inmediatas
     function agregarLetras(origen, cantidadDeseada) {
       let prev = null;
-      for (let i = 0; i < cantidadDada; i++) {
-        // Filtra para evitar la repetición inmediata de la letra anterior
+      for (let i = 0; i < cantidadDeseada; i++) {
         const opciones = origen.filter(l => l !== prev);
-        // Si no hay opciones distintas, usa la anterior (o un fallback si origen está vacío)
         const letra = opciones[Math.floor(Math.random() * opciones.length)] || origen[0] || prev;
-        if (letra) { // Asegurarse de que la letra no sea undefined
+        if (letra) {
             resultado.push(letra);
             prev = letra;
         }
       }
     }
 
-    // Asegurarse de que hay suficientes letras en los orígenes
     const letrasNuevasParaAgregar = Math.min(totalNuevas, letrasNuevas.length);
     const letrasViejasParaAgregar = Math.min(totalViejas, letrasAcumuladas.length);
 
     agregarLetras(letrasNuevas, letrasNuevasParaAgregar);
-    agregarLetras(letrasAcumuladas, letrasViejasParaAgregar); // Usar las acumuladas para las "viejas"
+    agregarLetras(letrasAcumuladas, letrasViejasParaAgregar);
 
-    // Si la cantidad total no se alcanzó, rellenar con las acumuladas
     while (resultado.length < cantidad) {
         const letra = letrasAcumuladas[Math.floor(Math.random() * letrasAcumuladas.length)];
         if (letra) resultado.push(letra);
-        else break; // Evitar bucle infinito si no hay letras
+        else break;
     }
 
-    return resultado.sort(() => Math.random() - 0.5); // Aleatorizar el orden final
+    return resultado.sort(() => Math.random() - 0.5);
   },
 
   /**
@@ -92,14 +88,11 @@ export const ContenidoNivel = {
       console.warn(`Frases para el nivel ${nivel} no encontradas o vacías.`);
       return "Texto de ejemplo si no hay frases.";
     }
-    // Selecciona una frase aleatoria del nivel
     return nivelData.phrases[Math.floor(Math.random() * nivelData.phrases.length)];
   },
 
   /**
    * Retorna un subconjunto de palabras del nivel para el modo texto (si se necesita para demo o previsualización).
-   * Este método es nuevo y puede usarse para obtener palabras específicas para el modo texto
-   * si no se necesita una frase completa, por ejemplo, para una demo de teclado.
    */
   getPalabrasParaText(nivel, cantidad = 5) {
     const nivelData = niveles[nivel];
@@ -107,12 +100,12 @@ export const ContenidoNivel = {
         console.warn(`Palabras para el nivel ${nivel} no encontradas o vacías.`);
         return ["ejemplo", "palabras"];
     }
-    const palabras = nivelData.words.slice(); // Copia el array para no modificar el original
+    const palabras = nivelData.words.slice();
     const seleccion = [];
     for (let i = 0; i < cantidad; i++) {
         seleccion.push(palabras[Math.floor(Math.random() * palabras.length)]);
     }
-    return seleccion.join(" "); // Retorna un string de palabras separadas por espacio
+    return seleccion.join(" ");
   }
 };
 

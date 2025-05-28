@@ -2,6 +2,7 @@
 
 import KeyboardDisplay from "../ui/KeyboardDisplay.js";
 import ContenidoNivel from '../core/contenidoNivel.js'; // Asegúrate de que este archivo exista y sea accesible
+import COLORS from "../config/colors.js";
 
 export default class InterLevelScene extends Phaser.Scene {
     constructor() {
@@ -112,7 +113,7 @@ export default class InterLevelScene extends Phaser.Scene {
     setupUI() {
         const style = {
             font: `bold ${this.getFontSize()}px Arial`,
-            fill: '#FFD700',
+            fill: '#FFFFFF',
             shadow: {
                 offsetX: 2,
                 offsetY: 2,
@@ -134,7 +135,7 @@ export default class InterLevelScene extends Phaser.Scene {
             this.cameras.main.centerX,
             130,
             '',
-            { ...style, font: `${this.getFontSize() - 4}px Arial`, fill: '#FFFFFF' }
+            { ...style, font: `${this.getFontSize() - 4}px Arial`, fill: '#ffffff' }
         ).setOrigin(0.5);
 
         this.motivationalGraphic = this.add.text(
@@ -338,9 +339,9 @@ export default class InterLevelScene extends Phaser.Scene {
     }
 
     createLegendElements() {
-        this.legendRectNew = this.add.rectangle(0, 0, 20, 20, 0xffcc00).setOrigin(0, 0.5);
+        this.legendRectNew = this.add.rectangle(0, 0, 20, 20, 0xFF9900).setOrigin(0, 0.5);
         this.legendTextNew = this.add.text(0, 0, 'Nuevas', { fontSize: '16px', fill: '#fff' }).setOrigin(0, 0.5);
-        this.legendRectLearned = this.add.rectangle(0, 0, 20, 20, 0xeeeeac).setOrigin(0, 0.5);
+        this.legendRectLearned = this.add.rectangle(0, 0, 20, 20, 0x00AAFF).setOrigin(0, 0.5);
         this.legendTextLearned = this.add.text(0, 0, 'Aprendidas', { fontSize: '16px', fill: '#fff' }).setOrigin(0, 0.5);
         
         this.legendGroup = this.add.container(0, 0, [
@@ -355,7 +356,10 @@ export default class InterLevelScene extends Phaser.Scene {
             this.createLegendElements();
         }
         // CORRECCIÓN: Llamar a getExplosionLineY() como función
-        const leyendaY = (this.keyboardDisplay?.getExplosionLineY() || 150) - 550; // Ajustar posición
+        const leyendaY = (this.keyboardDisplay?.getExplosionLineY() || 150) - 30; // Ajustar posición
+        const lineaExplosion = this.keyboardDisplay.getExplosionLineY();
+        console.log('Línea de explosión y: ', lineaExplosion);
+
         const leyendaX = this.cameras.main.centerX;
 
         this.legendRectNew.setPosition(leyendaX - 80, leyendaY);

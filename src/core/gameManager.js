@@ -65,9 +65,13 @@ export default class GameManager {
                   guides: true, // Guías encendidas
                   explosionLine: true, // Línea de explosión encendida
                   // hands: this.scene.registry.get('showHands') !== false // Manos según el registro
-                  hands: true
+                  hands: true,
               },
           });
+
+          this.keyboardDisplay.hands.visible = true;
+          this.keyboardDisplay.explosionLine.visible = true;
+          this.keyboardDisplay.guides.visible = true;
 
           // 4. Forzar redibujado inicial
           this.keyboardDisplay.draw([]); 
@@ -112,7 +116,9 @@ export default class GameManager {
       this.keyboardDisplay.getExplosionLineY() // Usar this.keyboardDisplay
     );
 
-    this.keyboardDisplay.clear(); // Usar this.keyboardDisplay
+    console.log("keyboardPositions de letra: ", this.keyboardDisplay.getKeyPositions(letter));
+
+    // this.keyboardDisplay.clear(); // Usar this.keyboardDisplay
     this.keyboardDisplay.draw(letter); // Usar this.keyboardDisplay
   }
 

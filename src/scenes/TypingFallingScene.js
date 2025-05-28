@@ -50,7 +50,7 @@ export default class TypingFallingScene extends Phaser.Scene {
             this,
             this.letters,
             this.speed,
-            5, // velocidad máxima para pasar de nivel
+            2, // velocidad máxima para pasar de nivel
             this.level,
             'falling'
         );
