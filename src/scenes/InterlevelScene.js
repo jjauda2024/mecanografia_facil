@@ -43,7 +43,7 @@ export default class InterLevelScene extends Phaser.Scene {
     }
 
     preload() {
-      this.load.image('hands', './assets/hands.png');
+      this.load.image('hands', 'assets/hands.png');
       // Puedes cargar más imágenes para motivación aquí si las tienes
       // this.load.image('star_burst', './assets/star_burst.png');
       // this.load.image('trophy_icon', './assets/trophy_icon.png');
@@ -86,7 +86,7 @@ export default class InterLevelScene extends Phaser.Scene {
                 initialSettings: {
                     guides: true,
                     explosionLine: true,
-                    hands: this.registry.get('showHands') !== false
+                    hands: true
                 }
             });
 
@@ -241,7 +241,7 @@ export default class InterLevelScene extends Phaser.Scene {
         if (this.stage === 'congrats') {
             this.titleText.setText(`¡Felicidades! Completaste el nivel ${this.finishedLevel}!`);
             this.instructionText.setText('Presiona ESPACIO para continuar.');
-            this.keyboardDisplay?.clear();
+            // this.keyboardDisplay?.clear();
             this.hideLegend();
             this.showMotivationalElement('¡Increíble!', '¡Sigue así, lo vas a dominar!');
         } else { // stage === 'details'

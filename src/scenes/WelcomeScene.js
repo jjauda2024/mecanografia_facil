@@ -2,7 +2,8 @@
 // Escena de bienvenida que muestra título, demo de teclado y selección de nivel
 
 import niveles from '../utils/nivelesData.js';
-import KeyboardDisplay from '../ui/KeyboardDisplay.js';
+import TypingFallingScene from './TypingFallingScene.js';
+import ContenidoNivel from '../core/contenidoNivel.js';
 
 export default class WelcomeScene extends Phaser.Scene {
   constructor() {
@@ -10,8 +11,8 @@ export default class WelcomeScene extends Phaser.Scene {
   }
 
   preload() {
-    // Carga imágenes para las manos y el punto del dedo
     this.load.image('hands', './assets/hands.png');
+    this.load.audio('error', './assets/error.mp3'); // <-- Añade esta línea
   }
 
   create() {
@@ -68,10 +69,25 @@ export default class WelcomeScene extends Phaser.Scene {
           // Asegurar pantalla completa
           if (!this.scale.isFullscreen) this.scale.startFullscreen();
           // Ir a InterlevelScene con modo 'falling'
-          this.scene.start('InterlevelScene', {
-            nextMode:  'falling',
-            nextLevel: Number(nivel)
-          });
+            // Intentar el siguiente nivel de Falling
+            const selectedLevel = Number(nivel);
+            const nextFallingLetters = ContenidoNivel.getLetrasParaFalling(selectedLevel);
+            if (nextFallingLetters.length > 0) {
+                      this.scene.stop('GameHeaderScene');
+                      this.scene.stop('WelcomeScene');
+                      this.scene.start('InterlevelScene', {
+                      nextLevel: selectedLevel, // nivel seleccionado
+                      nextMode: 'falling',
+                      isInitial: true
+                    });
+            } else {
+                console.warn(`El nivel ${selectedLevel} de Falling no tiene contenido. No se puede iniciar.`);
+                // Opcional: mostrar un mensaje al usuario
+                this.add.text(this.cameras.main.centerX, this.cameras.main.centerY + 100,
+                  'Este nivel no tiene contenido disponible.',
+                  { fontSize: '18px', color: '#ff4444' }).setOrigin(0.5);
+            }
+            
         });
 
       // Fondo redondeado detrás del texto
@@ -88,28 +104,4 @@ export default class WelcomeScene extends Phaser.Scene {
     });
   }
 
-  setupKeyboardDisplay() {
-    try {
-        this.keyboard = new KeyboardDisplay(this, {
-            x: this.cameras.main.centerX,
-            y: 300,
-            keyboardOptions: {
-                keyColor: 0x333333,
-                highlightColor: 0x00AAFF
-            }
-        });
-
-        this.keyboard.draw();
-
-        // Centrar el teclado horizontalmente
-        const bounds = this.keyboard.getContainer().getBounds();
-        this.keyboard.container.setX(this.cameras.main.centerX - bounds.width / 2);
-        this.add.existing(this.keyboard.container);
-
-    } catch (error) {
-        console.error('Error al inicializar keyboard:', error);
-        this.debugText.setText('Error: Verifica la consola');
-    }
-  }
-  
 }

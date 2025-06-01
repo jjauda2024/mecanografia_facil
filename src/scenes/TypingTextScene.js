@@ -108,13 +108,52 @@ export default class TypingTextScene extends Phaser.Scene {
 
     this.scoreManager = new ScoreManager(this);
 
-    this.keyboard = new KeyboardDisplay(this, {
-      keyColor: 0x222222,
-      highlightColor: 0xffcc00,
-    });
-    this.keyboard.draw(this.texto[0]);
+    this.setupKeyboard();
 
     this.input.keyboard.on("keydown", this.handleKey, this);
+
+  }
+
+  setupKeyboard() {
+      try {
+          // 3. Teclado centrado con posición responsive
+          // Usar this.scene.cameras.main
+          const centerY = this.cameras.main.centerY + (this.cameras.main.height < 600 ? 30 : 100); 
+          
+          // Instanciar el teclado.
+          // El primer argumento debe ser la escena.
+          this.KeyboardDisplay = new KeyboardDisplay(this, { 
+              x: 0, 
+              y: centerY, 
+              // scale: this.getScale(), 
+              // *** Agrega la propiedad initialSettings aquí ***
+              initialSettings: {
+                  guides: true, // Guías encendidas
+                  explosionLine: true, // Línea de explosión encendida
+                  // hands: this.scene.registry.get('showHands') !== false // Manos según el registro
+                  hands: true,
+              },
+          });
+
+          // 4. Forzar redibujado inicial
+          this.KeyboardDisplay.draw([]); 
+
+          // this.KeyboardDisplay.hands.visible = true;
+          // this.KeyboardDisplay.explosionLine.visible = true;
+          // this.KeyboardDisplay.guides.visible = true;
+
+          // *** Añadir estas líneas para centrar el teclado horizontalmente ***
+          // Asegúrate de que el KeyboardDisplay.js ya tiene el fix para getContainer().getBounds()
+          // const keyboardBounds = this.KeyboardDisplay.getContainer().getBounds();
+          const keyboardBounds = this.KeyboardDisplay.container.getBounds();
+          this.KeyboardDisplay.container.setX(this.cameras.main.centerX - keyboardBounds.width / 2); // Usar this.scene.cameras.main
+          // *******************************************************************
+          
+      } catch (error) {
+          console.error('Error al crear teclado en TypingTextScene:', error); // Mensaje más específico
+          // this.createFallbackMessage(); // Este método no existe en GameManager, está en la escena
+          // Podrías lanzar un evento o loguear el error para que la escena lo maneje
+      }
   }
 
   handleKey(event) {
@@ -134,7 +173,7 @@ export default class TypingTextScene extends Phaser.Scene {
         const next = this.letterObjects[this.cursorIndex];
         this.cursor.setPosition(next.x, next.y + 28);
         this.cursor.width = next.width;
-        this.keyboard.draw(this.texto[this.cursorIndex]);
+        this.KeyboardDisplay.draw(this.texto[this.cursorIndex]);
       } else {
         console.log("✅ Texto completado");
         this.cursor.destroy();
@@ -149,7 +188,7 @@ export default class TypingTextScene extends Phaser.Scene {
       }
       this.letterObjects[this.cursorIndex].setColor(this.incorrectColor);
       this.scoreManager.addMiss();
-      this.keyboard.draw(this.texto[this.cursorIndex]);
+      this.KeyboardDisplay.draw(this.texto[this.cursorIndex]);
 
       if (this.scoreManager.misses >= this.maxMisses) {
         console.log("💀 Juego terminado por errores");
@@ -161,8 +200,8 @@ export default class TypingTextScene extends Phaser.Scene {
 
   advanceToNext() {
     this.scene.start("InterlevelScene", {
-      mode: "text",
-      level: this.level,
+      finishedMode: "text",
+      finishedLevel: this.level,
     });
   }
 

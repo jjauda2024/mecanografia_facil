@@ -181,7 +181,7 @@ export default class GameManager {
     // arrancamos InterlevelScene pasándole el modo y el nivel ya completado.
     if (ContenidoNivel.getLetrasParaFalling(this.level + 1).length > 0) {
       this.scene.scene.start("InterlevelScene", {
-        mode: "falling", // acabamos de finalizar “falling”
+        mode: this.mode, // acabamos de finalizar “falling”
         level: this.level, // nivel completado
       });
     } else {
