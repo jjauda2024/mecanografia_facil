@@ -1,67 +1,63 @@
 // utils/nivelesData.js
 // Definición centralizada de todos los niveles del juego.
-// Contiene las letras, palabras, frases y adaptaciones visuales por nivel.
 
 export const niveles = {
-  1: {
-    id: 1,
-    name: "Fundamentos",
-    newLetters: ["a", "e", "o", "s", "m", "l"],
-    words: [ // Palabras que usan las letras de este nivel y anteriores
-      "casa", "mesa", "sol", "sal", "ala", "loma", "mola", "lesa", "sola", "loas", "mas",
-      "la", "el", "es", "me", "se", "lo", "las", "los"
-    ],
-    phrases: [ // Frases para el modo texto
-      "la casa es mia",
-      "el sol sale",
-      "mesa de madera",
-      "la sal es blanca",
-      "somos leales"
-    ],
-    visuals: { // Adaptaciones visuales para este nivel
-      keyboardOpacity: 0.6, // Teclado virtual al 60% de opacidad
-      correctWaveEffect: "leaves", // Efecto "onda" con hojas
-      errorKeyBlink: true, // Tecla correcta brilla suavemente al error
-    }
-  },
-  2: {
-    id: 2,
-    name: "Estructuras Básicas",
-    newLetters: ["i", "d", "n", "r", "t"],
-    words: [
-      "dado", "nido", "tren", "rana", "tinta", "dedo", "ida", "tarde", "naranja",
-      "ir", "dan", "nada", "arte", "red", "tienda", "dentro", "andar", "sentir"
-    ],
-    phrases: [
-      "dame la tinta",
-      "el tren es rapido",
-      "naranja madura",
-      "ir a la tienda",
-      "sentir el aire"
-    ],
-    visuals: {
-      keyboardBreathing: true, // Teclado con "respiración" suave
-      guideLinesAnimated: true, // Guías de dedos animadas
-    }
-  },
-  3: {
+    1: {
+      id: 1,
+      name: "Fundamentos",
+      newLetters: ["a", "e", "o", "s", "m", "l"],
+      words: [ // Estas son las palabras de las que se seleccionarán al azar para la repetición
+        "casa", "mesa", "sol", "sal", "ala", "loma", "mola", "lesa", "sola", "loas", "mas",
+        "la", "el", "es", "me", "se", "lo", "las", "los", "asoma"
+      ],
+      // *** CONFIGURACIÓN SIMPLIFICADA PARA TEXTO REPETITIVO ***
+      textConfig: {
+        type: 'repeatedWords',
+        wordsPerGroup: 3, // Cuántas veces se repite cada palabra en un grupo
+        groupsPerLine: 3, // Cuántos grupos de palabras hay en cada línea
+        numLines: 5 // Número total de líneas a generar
+      },
+      phrases: [],
+      visuals: { /* ... */ }
+    },
+    2: {
+      id: 2,
+      name: "Estructuras Básicas",
+      newLetters: ["i", "d", "n", "r", "t"],
+      words: [
+        "dado", "nido", "tren", "rana", "tinta", "dedo", "ida", "tarde", "naranja",
+        "ir", "dan", "nada", "arte", "red", "tienda", "dentro", "andar", "sentir"
+      ],
+      textConfig: {
+        type: 'repeatedWords',
+        wordsPerGroup: 3,
+        groupsPerLine: 3,
+        numLines: 5
+      },
+      phrases: [],
+      visuals: { /* ... */ }
+    },
+    3: {
     id: 3,
     name: "Ortografía Completa",
-    newLetters: ["u", "c", "p", "b"], // Las mayúsculas y acentos se gestionan en keyMappings y la lógica de entrada
+    newLetters: ["u", "c", "p", "b"],
     words: [
       "burro", "cubo", "pato", "boca", "culpa", "pulpo", "cabra", "pueblo",
       "azul", "uno", "cielo", "puro", "barco", "subir", "buscar", "culpa"
     ],
-    phrases: [
+    phrases: [ // Estos son los textos normales para los niveles avanzados
       "un buho canta",
       "el pato es blanco",
       "sube la cuesta",
       "busca tu camino",
       "pulpo en el cubo"
     ],
+    textConfig: { // Indicar que es un texto normal, sin formato especial
+        type: 'normal'
+    },
     visuals: {
-      shiftDragEffect: "golden_trail", // Efecto de "arrastre" para Shift
-      fingerThumbnails: true, // Teclado muestra miniaturas de dedos
+      shiftDragEffect: "golden_trail",
+      fingerThumbnails: true,
     }
   },
   4: {
@@ -79,9 +75,12 @@ export const niveles = {
       "quiero un helado",
       "vive la vida"
     ],
+    textConfig: {
+        type: 'normal'
+    },
     visuals: {
-      qKeyPulsing: true, // Tecla "Q" con efecto pulsante morado
-      interrogationTooltip: true, // Tooltip para "¿" con animación
+      qKeyPulsing: true,
+      interrogationTooltip: true,
     }
   },
   5: {
@@ -99,7 +98,10 @@ export const niveles = {
       "juega con el niño",
       "haz tu examen"
     ],
-    visuals: {} // Sin adaptaciones visuales específicas mencionadas, pero se pueden añadir
+    textConfig: {
+        type: 'normal'
+    },
+    visuals: {}
   }
 };
 

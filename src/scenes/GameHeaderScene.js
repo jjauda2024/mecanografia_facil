@@ -30,8 +30,21 @@ export default class GameHeaderScene extends Phaser.Scene {
         
         this.scene.start('TypingTextScene', { level: 1 });
       });
-      
-      
+
+
+      // Añadir un botón de depuración (ej. arriba a la derecha)
+      const debugButton = this.add.text(this.cameras.main.width - 50, 20, 'DEBUG', {
+          fontSize: '16px',
+          backgroundColor: '#880000',
+          padding: { x: 5, y: 3 }
+      })
+      .setOrigin(1, 0)
+      .setInteractive({ useHandCursor: true })
+      .on('pointerdown', () => {
+          this.scene.stop('GameHeaderScene');
+          this.scene.stop('WelcomeScene');
+          this.scene.start('DebugContentScene'); // Lanzar la escena de depuración
+      });
       
 
       const btnWelcome = this.add.text(120, 20, '↩️ Welcome', btnStyle).setInteractive({ useHandCursor: true });
