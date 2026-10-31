@@ -29,8 +29,8 @@ El juego contará con dos modos principales de práctica, diseñados para aborda
 ## ⚙️ Cómo Ejecutar (Para desarrolladores)
 
 1.  Clona este repositorio.
-2.  Abre el archivo `index.html` en tu navegador web.
-3.  (Opcional) Si necesitas un servidor local para ciertos assets o módulos (por ejemplo, para cargar archivos JSON o si tu navegador restringe el acceso a archivos locales por seguridad), puedes usar una extensión de VS Code como "Live Server".
+2.  Inicia un servidor local en la carpeta del proyecto, por ejemplo con la extensión "Live Server" de VS Code o con `python -m http.server 8000`.
+3.  Abre en tu navegador la dirección del servidor (con el comando anterior, `http://localhost:8000`). No abras `index.html` con doble clic: el juego usa módulos de JavaScript, que los navegadores bloquean al cargar archivos locales.
 
 ---
 © 2025 UmbralDigital SPA. Todos los derechos reservados.
